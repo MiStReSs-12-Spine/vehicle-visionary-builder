@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,7 +20,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import DataGrid from "@/components/reports/DataGrid";
 import { leaveData, employeeData } from "@/utils/hrData";
 
-const LeaveReports = () => {
+interface LeaveReportsProps {
+  subMenu: string;
+}
+
+const LeaveReports: React.FC<LeaveReportsProps> = ({ subMenu }) => {
   const [reportType, setReportType] = useState("balance");
 
   // Combine employee data with leave for display

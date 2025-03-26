@@ -20,7 +20,11 @@ import { Calendar } from "lucide-react";
 import DataGrid from "@/components/reports/DataGrid";
 import { attendanceData, employeeData, monthlySummaryData } from "@/utils/hrData";
 
-const AttendanceReports = () => {
+interface AttendanceReportsProps {
+  subMenu: string;
+}
+
+const AttendanceReports: React.FC<AttendanceReportsProps> = ({ subMenu }) => {
   const [reportType, setReportType] = useState("absenteeism");
   const [period, setPeriod] = useState("monthly");
 

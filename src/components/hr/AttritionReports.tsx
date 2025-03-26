@@ -21,7 +21,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import DataGrid from "@/components/reports/DataGrid";
 import { exitData, employeeData, monthlySummaryData } from "@/utils/hrData";
 
-const AttritionReports = () => {
+interface AttritionReportsProps {
+  subMenu: string;
+}
+
+const AttritionReports: React.FC<AttritionReportsProps> = ({ subMenu }) => {
   const [reportType, setReportType] = useState("rate");
   const [period, setPeriod] = useState("monthly");
 

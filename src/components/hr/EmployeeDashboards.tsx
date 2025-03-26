@@ -16,9 +16,13 @@ import {
 } from "recharts";
 import { departmentData, levelData, shiftData } from "@/utils/hrData";
 
+interface EmployeeDashboardsProps {
+  subMenu: string;
+}
+
 const COLORS = ["#3498db", "#2ecc71", "#e74c3c", "#f39c12", "#9b59b6", "#1abc9c", "#34495e", "#d35400"];
 
-const EmployeeDashboards = () => {
+const EmployeeDashboards: React.FC<EmployeeDashboardsProps> = ({ subMenu }) => {
   // Calculate total headcount
   const totalHeadcount = departmentData.reduce((sum, dept) => sum + dept.headcount, 0);
   const maleCount = departmentData.reduce((sum, dept) => sum + dept.maleCount, 0);

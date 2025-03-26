@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,7 +13,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const ComplianceReports = () => {
+interface ComplianceReportsProps {
+  subMenu: string;
+}
+
+const ComplianceReports: React.FC<ComplianceReportsProps> = ({ subMenu }) => {
   const [reportType, setReportType] = useState("form12");
   const [month, setMonth] = useState("may");
   const [year, setYear] = useState("2023");
@@ -28,6 +31,8 @@ const ComplianceReports = () => {
       const restHours = Math.floor(Math.random() * 20) + 60; // 60-80 hours
       const wages = Math.floor(Math.random() * 3000) + 2000; // $2000-$5000
       const overtimeHours = Math.floor(Math.random() * 20); // 0-20 hours
+      const overtimePay = overtimeHours * 25; // $25 per hour
+      const totalPay = wages + overtimePay;
       
       return {
         id: emp.id,
@@ -39,9 +44,8 @@ const ComplianceReports = () => {
         restHours,
         wages,
         overtimeHours,
-        // Use regular functions instead of methods to avoid 'this' context issues
-        overtimePay: overtimeHours * 25, // $25 per hour
-        totalPay: wages + (overtimeHours * 25),
+        overtimePay,
+        totalPay,
         location: ["Mumbai", "Bangalore", "Delhi", "Chennai"][Math.floor(Math.random() * 4)],
         grade: ["A", "B", "C", "D"][Math.floor(Math.random() * 4)],
         designation: emp.position,
