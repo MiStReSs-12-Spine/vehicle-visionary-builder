@@ -27,16 +27,16 @@ interface ReportBuilderProps {
 
 // Sample fields for the query builder
 const queryFields = [
-  { name: "Vehicle Type", type: "string" },
-  { name: "Vehicle ID", type: "string" },
-  { name: "Driver", type: "string" },
-  { name: "Date", type: "date" },
-  { name: "Fuel Consumption", type: "number" },
-  { name: "Distance", type: "number" },
-  { name: "Route", type: "string" },
-  { name: "Maintenance Status", type: "boolean" },
-  { name: "Efficiency Score", type: "number" },
-  { name: "Incidents", type: "number" },
+  { name: "Vehicle Type", type: "string" as const },
+  { name: "Vehicle ID", type: "string" as const },
+  { name: "Driver", type: "string" as const },
+  { name: "Date", type: "date" as const },
+  { name: "Fuel Consumption", type: "number" as const },
+  { name: "Distance", type: "number" as const },
+  { name: "Route", type: "string" as const },
+  { name: "Maintenance Status", type: "boolean" as const },
+  { name: "Efficiency Score", type: "number" as const },
+  { name: "Incidents", type: "number" as const },
 ];
 
 // Sample columns for the data grid
