@@ -15,19 +15,27 @@ const ComplianceReports = () => {
 
   // Generate sample compliance data
   const generateComplianceData = () => {
-    return employeeData.map(emp => ({
-      id: emp.id,
-      name: emp.name,
-      department: emp.department,
-      position: emp.position,
-      joiningDate: emp.joinDate,
-      workHours: Math.floor(Math.random() * 40) + 160, // 160-200 hours
-      restHours: Math.floor(Math.random() * 20) + 60, // 60-80 hours
-      wages: Math.floor(Math.random() * 3000) + 2000, // $2000-$5000
-      overtimeHours: Math.floor(Math.random() * 20), // 0-20 hours
-      overtimePay: function() { return this.overtimeHours * 25; }, // $25 per hour
-      totalPay: function() { return this.wages + this.overtimePay(); }
-    }));
+    return employeeData.map(emp => {
+      const workHours = Math.floor(Math.random() * 40) + 160; // 160-200 hours
+      const restHours = Math.floor(Math.random() * 20) + 60; // 60-80 hours
+      const wages = Math.floor(Math.random() * 3000) + 2000; // $2000-$5000
+      const overtimeHours = Math.floor(Math.random() * 20); // 0-20 hours
+      
+      return {
+        id: emp.id,
+        name: emp.name,
+        department: emp.department,
+        position: emp.position,
+        joiningDate: emp.joinDate,
+        workHours,
+        restHours,
+        wages,
+        overtimeHours,
+        // Use regular functions instead of methods to avoid 'this' context issues
+        overtimePay: overtimeHours * 25, // $25 per hour
+        totalPay: wages + (overtimeHours * 25)
+      };
+    });
   };
 
   const complianceData = generateComplianceData();
@@ -59,9 +67,9 @@ const ComplianceReports = () => {
       render: (value: number) => <span>${value}</span> },
     { key: "overtimeHours", title: "Overtime Hours", sortable: true },
     { key: "overtimePay", title: "Overtime Pay", sortable: true, 
-      render: (value: Function) => <span>${value()}</span> },
+      render: (value: number) => <span>${value}</span> },
     { key: "totalPay", title: "Total Pay", sortable: true, 
-      render: (value: Function) => <span>${value()}</span> },
+      render: (value: number) => <span>${value}</span> },
   ];
 
   // Get columns based on report type

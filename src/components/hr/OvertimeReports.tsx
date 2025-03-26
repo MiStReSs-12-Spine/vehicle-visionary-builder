@@ -38,19 +38,26 @@ const OvertimeReports = () => {
   });
 
   // Overtime by department data
-  const departmentOvertime = departmentData.map(dept => ({
-    department: dept.name,
-    hours: Math.floor(Math.random() * 100) + 50, // 50-150 hours
-    cost: function() { return this.hours * 25; }, // $25 per hour
-  }));
+  const departmentOvertime = departmentData.map(dept => {
+    const hours = Math.floor(Math.random() * 100) + 50; // 50-150 hours
+    return {
+      department: dept.name,
+      hours,
+      cost: hours * 25, // $25 per hour
+    };
+  });
 
   // Monthly overtime data
-  const monthlyOvertime = monthlySummaryData.map(data => ({
-    month: data.month,
-    hours: data.overtimeHours,
-    approved: Math.floor(data.overtimeHours * 0.85), // 85% approval rate
-    unapproved: function() { return this.hours - this.approved; }
-  }));
+  const monthlyOvertime = monthlySummaryData.map(data => {
+    const hours = data.overtimeHours;
+    const approved = Math.floor(hours * 0.85); // 85% approval rate
+    return {
+      month: data.month,
+      hours,
+      approved,
+      unapproved: hours - approved
+    };
+  });
 
   // Columns for data grid
   const individualColumns = [
@@ -71,7 +78,7 @@ const OvertimeReports = () => {
     { key: "department", title: "Department", sortable: true },
     { key: "hours", title: "Total Hours", sortable: true },
     { key: "cost", title: "Total Cost", sortable: true,
-      render: (value: Function) => <span>${value()}</span> },
+      render: (value: number) => <span>${value}</span> },
   ];
 
   return (
