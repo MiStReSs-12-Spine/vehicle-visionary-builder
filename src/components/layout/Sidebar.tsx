@@ -1,7 +1,8 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   BarChart3,
@@ -38,6 +39,11 @@ const navigation = [
     title: "Employee Overview",
     icon: Users,
     href: "/?tab=dashboards",
+    subItems: [
+      { title: "Daily Report", href: "/?tab=dashboards&submenu=daily" },
+      { title: "Monthly Summary", href: "/?tab=dashboards&submenu=monthly" },
+      { title: "Department Analysis", href: "/?tab=dashboards&submenu=department" },
+    ]
   },
   {
     title: "Attendance",
@@ -100,16 +106,6 @@ const navigation = [
     ]
   },
   {
-    title: "Analytics",
-    icon: BarChart3,
-    href: "/analytics",
-  },
-  {
-    title: "Reports",
-    icon: FileText,
-    href: "/reports",
-  },
-  {
     title: "Settings",
     icon: Settings,
     href: "/settings",
@@ -117,7 +113,26 @@ const navigation = [
 ];
 
 const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
-  const [expandedItems, setExpandedItems] = useState<string[]>(["HR Dashboard"]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+
+  // Check which tab is active from URL parameters
+  const searchParams = new URLSearchParams(location.search);
+  const activeTab = searchParams.get("tab") || "dashboards";
+
+  // Initialize expanded items based on active tab
+  useEffect(() => {
+    // Find the navigation item that matches the current URL's tab
+    const matchingItem = navigation.find(item => {
+      const itemTab = new URLSearchParams(new URL(item.href, window.location.origin).search).get("tab");
+      return itemTab === activeTab;
+    });
+    
+    if (matchingItem && !expandedItems.includes(matchingItem.title)) {
+      setExpandedItems(prev => [...prev, matchingItem.title]);
+    }
+  }, [activeTab, location]);
 
   const toggleSubMenu = (title: string) => {
     setExpandedItems((current) => 
@@ -125,6 +140,25 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
         ? current.filter(item => item !== title) 
         : [...current, title]
     );
+  };
+
+  // Handle navigation item click
+  const handleNavItemClick = (item: any, e: React.MouseEvent) => {
+    if (item.subItems) {
+      e.preventDefault();
+      toggleSubMenu(item.title);
+    } else {
+      if (window.innerWidth < 1024) {
+        toggleSidebar();
+      }
+    }
+  };
+
+  // Handle submenu item click
+  const handleSubItemClick = () => {
+    if (window.innerWidth < 1024) {
+      toggleSidebar();
+    }
   };
 
   return (
@@ -153,7 +187,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className="lg:flex text-sidebar-foreground hover:text-primary hover:bg-sidebar-accent"
+            className="lg:hidden text-sidebar-foreground hover:text-primary hover:bg-sidebar-accent"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -166,10 +200,10 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                 {item.subItems ? (
                   <>
                     <button
-                      onClick={() => toggleSubMenu(item.title)}
+                      onClick={(e) => handleNavItemClick(item, e)}
                       className={cn(
                         "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                        item.active
+                        item.active || location.pathname === item.href || (item.href.includes("tab=") && item.href.includes(activeTab))
                           ? "bg-sidebar-accent text-primary"
                           : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                       )}
@@ -190,7 +224,11 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                           <Link
                             key={subItem.title}
                             to={subItem.href}
-                            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/70"
+                            onClick={handleSubItemClick}
+                            className={cn(
+                              "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/70",
+                              location.search === new URL(subItem.href, window.location.origin).search && "bg-sidebar-accent/60 font-medium"
+                            )}
                           >
                             <span className="h-1 w-1 rounded-full bg-sidebar-foreground/70"></span>
                             {subItem.title}
@@ -202,9 +240,10 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                 ) : (
                   <Link
                     to={item.href}
+                    onClick={(e) => handleNavItemClick(item, e)}
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                      item.active
+                      item.active || location.pathname === item.href
                         ? "bg-sidebar-accent text-primary"
                         : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                     )}
