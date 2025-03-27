@@ -1,8 +1,7 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   BarChart3,
@@ -22,7 +21,6 @@ import {
   UserMinus
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -31,14 +29,15 @@ interface SidebarProps {
 
 const navigation = [
   {
+    title: "HR Dashboard",
+    icon: LayoutDashboard,
+    href: "/",
+    active: true,
+  },
+  {
     title: "Employee Overview",
     icon: Users,
     href: "/?tab=dashboards",
-    subItems: [
-      { title: "Daily Report", href: "/?tab=dashboards&submenu=daily" },
-      { title: "Monthly Summary", href: "/?tab=dashboards&submenu=monthly" },
-      { title: "Department Analysis", href: "/?tab=dashboards&submenu=department" },
-    ]
   },
   {
     title: "Attendance",
@@ -101,6 +100,16 @@ const navigation = [
     ]
   },
   {
+    title: "Analytics",
+    icon: BarChart3,
+    href: "/analytics",
+  },
+  {
+    title: "Reports",
+    icon: FileText,
+    href: "/reports",
+  },
+  {
     title: "Settings",
     icon: Settings,
     href: "/settings",
@@ -108,62 +117,14 @@ const navigation = [
 ];
 
 const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [expandedItems, setExpandedItems] = useState<string[]>(["HR Dashboard"]);
 
-  // Get active tab from URL parameters
-  const searchParams = new URLSearchParams(location.search);
-  const activeTab = searchParams.get("tab") || "dashboards";
-
-  // Initialize expanded items based on active tab
-  useEffect(() => {
-    // Find matching navigation item for the current tab
-    const matchingItem = navigation.find(item => {
-      if (!item.href) return false;
-      const itemParams = new URLSearchParams(new URL(item.href, window.location.origin).search);
-      const itemTab = itemParams.get("tab");
-      return itemTab === activeTab;
-    });
-    
-    // Expand the matching item if found and not already expanded
-    if (matchingItem && !expandedItems.includes(matchingItem.title)) {
-      setExpandedItems(prev => [...prev, matchingItem.title]);
-    }
-  }, [activeTab, location.pathname, expandedItems]);
-
-  // Toggle submenu visibility
   const toggleSubMenu = (title: string) => {
-    setExpandedItems(current => 
+    setExpandedItems((current) => 
       current.includes(title) 
         ? current.filter(item => item !== title) 
         : [...current, title]
     );
-  };
-
-  // Handle navigation item click
-  const handleNavItemClick = (item: any, e: React.MouseEvent) => {
-    if (item.subItems) {
-      e.preventDefault();
-      toggleSubMenu(item.title);
-    } else {
-      // If no subitems, navigate to the item's href
-      navigate(item.href);
-      if (window.innerWidth < 1024) {
-        toggleSidebar();
-      }
-    }
-  };
-
-  // Handle submenu item click
-  const handleSubItemClick = (subItem: any, e: React.MouseEvent) => {
-    e.preventDefault();
-    navigate(subItem.href);
-    toast.success(`Navigated to ${subItem.title}`);
-    
-    if (window.innerWidth < 1024) {
-      toggleSidebar();
-    }
   };
 
   return (
@@ -192,7 +153,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className="lg:hidden text-sidebar-foreground hover:text-primary hover:bg-sidebar-accent"
+            className="lg:flex text-sidebar-foreground hover:text-primary hover:bg-sidebar-accent"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -205,10 +166,10 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                 {item.subItems ? (
                   <>
                     <button
-                      onClick={(e) => handleNavItemClick(item, e)}
+                      onClick={() => toggleSubMenu(item.title)}
                       className={cn(
                         "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                        location.search && item.href && location.search.includes(item.href.split("?")[1])
+                        item.active
                           ? "bg-sidebar-accent text-primary"
                           : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                       )}
@@ -223,41 +184,37 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                         <ChevronRight className="h-4 w-4" />
                       )}
                     </button>
-                    {expandedItems.includes(item.title) && item.subItems && (
+                    {expandedItems.includes(item.title) && (
                       <div className="pl-10 mt-1 space-y-1">
-                        {item.subItems.map((subItem: any) => (
-                          <a
+                        {item.subItems.map((subItem) => (
+                          <Link
                             key={subItem.title}
-                            href={subItem.href}
-                            onClick={(e) => handleSubItemClick(subItem, e)}
-                            className={cn(
-                              "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/70",
-                              location.search === new URL(subItem.href, window.location.origin).search 
-                                ? "bg-sidebar-accent/60 font-medium" 
-                                : ""
-                            )}
+                            to={subItem.href}
+                            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/70"
                           >
                             <span className="h-1 w-1 rounded-full bg-sidebar-foreground/70"></span>
                             {subItem.title}
-                          </a>
+                          </Link>
                         ))}
                       </div>
                     )}
                   </>
                 ) : (
-                  <a
-                    href={item.href}
-                    onClick={(e) => handleNavItemClick(item, e)}
+                  <Link
+                    to={item.href}
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                      location.pathname === item.href
+                      item.active
                         ? "bg-sidebar-accent text-primary"
                         : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                     )}
                   >
                     <item.icon className="h-5 w-5" />
                     {item.title}
-                  </a>
+                    {item.active && (
+                      <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
+                    )}
+                  </Link>
                 )}
               </div>
             ))}
