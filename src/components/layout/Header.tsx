@@ -15,14 +15,14 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
         <Button variant="ghost" size="icon" onClick={toggleSidebar} className="lg:hidden">
           <Menu className="h-5 w-5" />
         </Button>
-        <h1 className="text-xl font-semibold hidden sm:block">Fleet Analytics</h1>
+        <h1 className="text-xl font-semibold hidden sm:block">HR Analytics</h1>
       </div>
       
       <div className="flex-1 mx-4 max-w-md hidden md:flex">
         <div className="relative w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search reports, vehicles..."
+            placeholder="Search reports, employees..."
             className="w-full pl-9 focus-visible:ring-1 focus-visible:ring-primary"
           />
         </div>

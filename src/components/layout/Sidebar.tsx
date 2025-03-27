@@ -22,6 +22,7 @@ import {
   UserMinus
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -29,12 +30,6 @@ interface SidebarProps {
 }
 
 const navigation = [
-  {
-    title: "HR Dashboard",
-    icon: LayoutDashboard,
-    href: "/",
-    active: true,
-  },
   {
     title: "Employee Overview",
     icon: Users,
@@ -117,25 +112,29 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
   const navigate = useNavigate();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
-  // Check which tab is active from URL parameters
+  // Get active tab from URL parameters
   const searchParams = new URLSearchParams(location.search);
   const activeTab = searchParams.get("tab") || "dashboards";
 
   // Initialize expanded items based on active tab
   useEffect(() => {
-    // Find the navigation item that matches the current URL's tab
+    // Find matching navigation item for the current tab
     const matchingItem = navigation.find(item => {
-      const itemTab = new URLSearchParams(new URL(item.href, window.location.origin).search).get("tab");
+      if (!item.href) return false;
+      const itemParams = new URLSearchParams(new URL(item.href, window.location.origin).search);
+      const itemTab = itemParams.get("tab");
       return itemTab === activeTab;
     });
     
+    // Expand the matching item if found and not already expanded
     if (matchingItem && !expandedItems.includes(matchingItem.title)) {
       setExpandedItems(prev => [...prev, matchingItem.title]);
     }
-  }, [activeTab, location]);
+  }, [activeTab, location.pathname, expandedItems]);
 
+  // Toggle submenu visibility
   const toggleSubMenu = (title: string) => {
-    setExpandedItems((current) => 
+    setExpandedItems(current => 
       current.includes(title) 
         ? current.filter(item => item !== title) 
         : [...current, title]
@@ -148,6 +147,8 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
       e.preventDefault();
       toggleSubMenu(item.title);
     } else {
+      // If no subitems, navigate to the item's href
+      navigate(item.href);
       if (window.innerWidth < 1024) {
         toggleSidebar();
       }
@@ -155,7 +156,11 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
   };
 
   // Handle submenu item click
-  const handleSubItemClick = () => {
+  const handleSubItemClick = (subItem: any, e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(subItem.href);
+    toast.success(`Navigated to ${subItem.title}`);
+    
     if (window.innerWidth < 1024) {
       toggleSidebar();
     }
@@ -203,7 +208,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                       onClick={(e) => handleNavItemClick(item, e)}
                       className={cn(
                         "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                        item.active || location.pathname === item.href || (item.href.includes("tab=") && item.href.includes(activeTab))
+                        location.search && item.href && location.search.includes(item.href.split("?")[1])
                           ? "bg-sidebar-accent text-primary"
                           : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                       )}
@@ -218,42 +223,41 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                         <ChevronRight className="h-4 w-4" />
                       )}
                     </button>
-                    {expandedItems.includes(item.title) && (
+                    {expandedItems.includes(item.title) && item.subItems && (
                       <div className="pl-10 mt-1 space-y-1">
-                        {item.subItems.map((subItem) => (
-                          <Link
+                        {item.subItems.map((subItem: any) => (
+                          <a
                             key={subItem.title}
-                            to={subItem.href}
-                            onClick={handleSubItemClick}
+                            href={subItem.href}
+                            onClick={(e) => handleSubItemClick(subItem, e)}
                             className={cn(
                               "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/70",
-                              location.search === new URL(subItem.href, window.location.origin).search && "bg-sidebar-accent/60 font-medium"
+                              location.search === new URL(subItem.href, window.location.origin).search 
+                                ? "bg-sidebar-accent/60 font-medium" 
+                                : ""
                             )}
                           >
                             <span className="h-1 w-1 rounded-full bg-sidebar-foreground/70"></span>
                             {subItem.title}
-                          </Link>
+                          </a>
                         ))}
                       </div>
                     )}
                   </>
                 ) : (
-                  <Link
-                    to={item.href}
+                  <a
+                    href={item.href}
                     onClick={(e) => handleNavItemClick(item, e)}
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                      item.active || location.pathname === item.href
+                      location.pathname === item.href
                         ? "bg-sidebar-accent text-primary"
                         : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                     )}
                   >
                     <item.icon className="h-5 w-5" />
                     {item.title}
-                    {item.active && (
-                      <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
-                    )}
-                  </Link>
+                  </a>
                 )}
               </div>
             ))}
