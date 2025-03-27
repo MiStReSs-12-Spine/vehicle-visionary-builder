@@ -1,8 +1,8 @@
+
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
 import HRReportBuilder from "@/components/hr/HRReportBuilder";
@@ -19,48 +19,52 @@ const Index = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   
+  // Parse tab and submenu from URL query parameters
   const queryParams = new URLSearchParams(location.search);
-  const tabFromUrl = queryParams.get("tab");
-  const submenuFromUrl = queryParams.get("submenu");
+  const tabFromUrl = queryParams.get("tab") || "dashboards";
+  const submenuFromUrl = queryParams.get("submenu") || "general";
   
-  const [activeTab, setActiveTab] = useState(tabFromUrl || "dashboards");
-  const [activeSubMenu, setActiveSubMenu] = useState({
-    dashboards: submenuFromUrl || "general",
-    attendance: submenuFromUrl || "general",
-    leave: submenuFromUrl || "general",
-    attrition: submenuFromUrl || "general",
-    compliance: submenuFromUrl || "general",
-    overtime: submenuFromUrl || "general",
-    builder: submenuFromUrl || "general",
-  });
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    const params = new URLSearchParams(location.search);
-    params.set("tab", tab);
-    
-    if (submenuFromUrl) {
-      params.set("submenu", submenuFromUrl);
-    } else {
-      params.delete("submenu");
+  // Handle content display based on URL parameters
+  const renderContent = () => {
+    switch(tabFromUrl) {
+      case "dashboards":
+        return <EmployeeDashboards subMenu={submenuFromUrl} />;
+      case "attendance":
+        return <AttendanceReports subMenu={submenuFromUrl} />;
+      case "leave":
+        return <LeaveReports subMenu={submenuFromUrl} />;
+      case "attrition":
+        return <AttritionReports subMenu={submenuFromUrl} />;
+      case "compliance":
+        return <ComplianceReports subMenu={submenuFromUrl} />;
+      case "overtime":
+        return <OvertimeReports subMenu={submenuFromUrl} />;
+      case "builder":
+        return <HRReportBuilder subMenu={submenuFromUrl} />;
+      default:
+        return <EmployeeDashboards subMenu={submenuFromUrl} />;
     }
-    
-    navigate(`/?${params.toString()}`);
-    toast.success(`${tab.charAt(0).toUpperCase() + tab.slice(1)} section loaded`);
   };
 
+  // Get appropriate title based on active tab
+  const getPageTitle = () => {
+    switch(tabFromUrl) {
+      case "dashboards": return "Employee Overview";
+      case "attendance": return "Attendance Reports";
+      case "leave": return "Leave Management";
+      case "attrition": return "Attrition Analytics";
+      case "compliance": return "Compliance Reports";
+      case "overtime": return "Overtime Analysis";
+      case "builder": return "Custom Report Builder";
+      default: return "HR Analytics Dashboard";
+    }
+  };
+  
+  // Display toast notification when tab changes
   useEffect(() => {
-    if (tabFromUrl) {
-      setActiveTab(tabFromUrl);
-    }
-    
-    if (submenuFromUrl) {
-      setActiveSubMenu(prev => ({
-        ...prev,
-        [tabFromUrl || "dashboards"]: submenuFromUrl
-      }));
-    }
-  }, [location.search, tabFromUrl, submenuFromUrl]);
+    const tabTitle = getPageTitle();
+    toast.success(`${tabTitle} loaded`);
+  }, [tabFromUrl]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -71,53 +75,15 @@ const Index = () => {
         <main className="flex-1 overflow-auto transition-all duration-300 ease-in-out p-4 md:p-6 lg:p-8 animate-fade-in">
           <div className="mx-auto max-w-7xl space-y-6">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">HR Analytics Dashboard</h1>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{getPageTitle()}</h1>
               <p className="text-muted-foreground mt-2">
                 Monitor employee metrics and create custom HR reports
               </p>
             </div>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-              <div className="overflow-x-auto pb-2">
-                <TabsList className="grid grid-cols-4 md:grid-cols-7 w-max md:w-full mb-4">
-                  <TabsTrigger value="dashboards" className="px-2 md:px-3">Dashboards</TabsTrigger>
-                  <TabsTrigger value="attendance" className="px-2 md:px-3">Attendance</TabsTrigger>
-                  <TabsTrigger value="leave" className="px-2 md:px-3">Leave</TabsTrigger>
-                  <TabsTrigger value="attrition" className="px-2 md:px-3">Attrition</TabsTrigger>
-                  <TabsTrigger value="compliance" className="px-2 md:px-3">Compliance</TabsTrigger>
-                  <TabsTrigger value="overtime" className="px-2 md:px-3">Overtime</TabsTrigger>
-                  <TabsTrigger value="builder" className="px-2 md:px-3">Report Builder</TabsTrigger>
-                </TabsList>
-              </div>
-
-              <TabsContent value="dashboards" className="mt-2">
-                <EmployeeDashboards subMenu={activeSubMenu.dashboards} />
-              </TabsContent>
-              
-              <TabsContent value="attendance" className="mt-2">
-                <AttendanceReports subMenu={activeSubMenu.attendance} />
-              </TabsContent>
-              
-              <TabsContent value="leave" className="mt-2">
-                <LeaveReports subMenu={activeSubMenu.leave} />
-              </TabsContent>
-              
-              <TabsContent value="attrition" className="mt-2">
-                <AttritionReports subMenu={activeSubMenu.attrition} />
-              </TabsContent>
-              
-              <TabsContent value="compliance" className="mt-2">
-                <ComplianceReports subMenu={activeSubMenu.compliance} />
-              </TabsContent>
-              
-              <TabsContent value="overtime" className="mt-2">
-                <OvertimeReports subMenu={activeSubMenu.overtime} />
-              </TabsContent>
-              
-              <TabsContent value="builder" className="mt-2">
-                <HRReportBuilder subMenu={activeSubMenu.builder} />
-              </TabsContent>
-            </Tabs>
+            <div className="mt-6">
+              {renderContent()}
+            </div>
           </div>
         </main>
       </div>
