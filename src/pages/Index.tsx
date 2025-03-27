@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 import HRReportBuilder from "@/components/hr/HRReportBuilder";
 import EmployeeDashboards from "@/components/hr/EmployeeDashboards";
@@ -17,6 +18,27 @@ const Index = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Initialize sidebar state based on screen size
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1280) { // xl breakpoint
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+
+    // Set initial state
+    handleResize();
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   
   // Parse tab and submenu from URL query parameters
@@ -91,7 +113,10 @@ const Index = () => {
       <div className="flex flex-1">
         <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
         
-        <main className="flex-1 overflow-auto transition-all duration-300 ease-in-out p-4 md:p-6 lg:p-8 animate-fade-in">
+        <main className={cn(
+          "flex-1 overflow-auto transition-all duration-300 ease-in-out p-4 md:p-6 lg:p-8 animate-fade-in",
+          sidebarOpen ? "xl:ml-64" : ""
+        )}>
           <div className="mx-auto max-w-7xl space-y-6">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{getPageTitle()}</h1>

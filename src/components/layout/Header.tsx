@@ -3,6 +3,7 @@ import React from "react";
 import { Search, Bell, Menu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -12,7 +13,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background/80 backdrop-blur-md px-4">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="lg:hidden">
+        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="text-foreground hover:bg-background hover:text-primary">
           <Menu className="h-5 w-5" />
         </Button>
         <h1 className="text-xl font-semibold hidden sm:block">HR Analytics</h1>

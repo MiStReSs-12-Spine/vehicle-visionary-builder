@@ -162,7 +162,8 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
       navigate(item.href);
       toast.success(`${item.title} loaded`);
       
-      if (window.innerWidth < 1024) {
+      // Close sidebar on mobile AND tablet
+      if (window.innerWidth < 1200) {
         toggleSidebar();
       }
     }
@@ -174,7 +175,8 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
     navigate(subItem.href);
     toast.success(`${parentTitle} - ${subItem.title} loaded`);
     
-    if (window.innerWidth < 1024) {
+    // Close sidebar on mobile AND tablet
+    if (window.innerWidth < 1200) {
       toggleSidebar();
     }
   };
@@ -193,10 +195,10 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
 
   return (
     <>
-      {/* Backdrop for mobile */}
+      {/* Backdrop for mobile and tablet */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm xl:hidden"
           onClick={toggleSidebar}
         />
       )}
@@ -204,7 +206,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col bg-sidebar border-r border-sidebar-border transition-transform duration-300 ease-in-out lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col bg-sidebar border-r border-sidebar-border transition-transform duration-300 ease-in-out xl:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -217,7 +219,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className="lg:hidden text-sidebar-foreground hover:text-primary hover:bg-sidebar-accent"
+            className="xl:hidden text-sidebar-foreground hover:text-primary hover:bg-sidebar-accent"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
