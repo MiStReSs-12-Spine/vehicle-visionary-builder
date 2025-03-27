@@ -1,17 +1,66 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
-import ReportBuilder from "@/components/reports/ReportBuilder";
-import StatsCard from "@/components/common/StatsCard";
-import ChartVisualizer from "@/components/reports/ChartVisualizer";
-import { vehiclePerformanceData, fleetUtilizationData, maintenanceData } from "@/utils/chartData";
-import { Car, TrendingUp, AlertTriangle, Wrench, Route, Fuel } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+
+import HRReportBuilder from "@/components/hr/HRReportBuilder";
+import EmployeeDashboards from "@/components/hr/EmployeeDashboards";
+import AttendanceReports from "@/components/hr/AttendanceReports";
+import LeaveReports from "@/components/hr/LeaveReports";
+import AttritionReports from "@/components/hr/AttritionReports";
+import ComplianceReports from "@/components/hr/ComplianceReports";
+import OvertimeReports from "@/components/hr/OvertimeReports";
 
 const Index = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  
+  const queryParams = new URLSearchParams(location.search);
+  const tabFromUrl = queryParams.get("tab");
+  const submenuFromUrl = queryParams.get("submenu");
+  
+  const [activeTab, setActiveTab] = useState(tabFromUrl || "dashboards");
+  const [activeSubMenu, setActiveSubMenu] = useState({
+    dashboards: submenuFromUrl || "general",
+    attendance: submenuFromUrl || "general",
+    leave: submenuFromUrl || "general",
+    attrition: submenuFromUrl || "general",
+    compliance: submenuFromUrl || "general",
+    overtime: submenuFromUrl || "general",
+    builder: submenuFromUrl || "general",
+  });
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    const params = new URLSearchParams(location.search);
+    params.set("tab", tab);
+    
+    if (submenuFromUrl) {
+      params.set("submenu", submenuFromUrl);
+    } else {
+      params.delete("submenu");
+    }
+    
+    navigate(`/?${params.toString()}`);
+    toast.success(`${tab.charAt(0).toUpperCase() + tab.slice(1)} section loaded`);
+  };
+
+  useEffect(() => {
+    if (tabFromUrl) {
+      setActiveTab(tabFromUrl);
+    }
+    
+    if (submenuFromUrl) {
+      setActiveSubMenu(prev => ({
+        ...prev,
+        [tabFromUrl || "dashboards"]: submenuFromUrl
+      }));
+    }
+  }, [location.search, tabFromUrl, submenuFromUrl]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -20,135 +69,55 @@ const Index = () => {
         <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
         
         <main className="flex-1 overflow-auto transition-all duration-300 ease-in-out p-4 md:p-6 lg:p-8 animate-fade-in">
-          <div className="mx-auto max-w-7xl space-y-8">
+          <div className="mx-auto max-w-7xl space-y-6">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Fleet Analytics Dashboard</h1>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">HR Analytics Dashboard</h1>
               <p className="text-muted-foreground mt-2">
-                Monitor your fleet performance and create custom reports
+                Monitor employee metrics and create custom HR reports
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatsCard
-                title="Active Vehicles"
-                value="75"
-                description="Out of 100 total vehicles"
-                trend="up"
-                trendValue="5%"
-                icon={Car}
-              />
-              <StatsCard
-                title="Fleet Efficiency"
-                value="92%"
-                description="Average across all routes"
-                trend="up"
-                trendValue="3%"
-                icon={TrendingUp}
-              />
-              <StatsCard
-                title="Maintenance Alerts"
-                value="8"
-                description="Vehicles requiring attention"
-                trend="down"
-                trendValue="12%"
-                icon={Wrench}
-              />
-              <StatsCard
-                title="Incidents"
-                value="3"
-                description="Reported in the last 30 days"
-                trend="down"
-                trendValue="25%"
-                icon={AlertTriangle}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ChartVisualizer
-                title="Vehicle Performance Trends"
-                data={vehiclePerformanceData}
-                xKey="month"
-                yKeys={[
-                  { key: "efficiency", name: "Efficiency %", color: "#3498db" },
-                  { key: "maintenance", name: "Maintenance Events", color: "#e74c3c" },
-                  { key: "incidents", name: "Incidents", color: "#f39c12" },
-                ]}
-                description="Monthly performance metrics for your fleet"
-              />
-
-              <ChartVisualizer
-                title="Fleet Utilization"
-                data={fleetUtilizationData}
-                xKey="status"
-                yKeys={[
-                  { key: "value", name: "Percentage", color: "#3498db" },
-                ]}
-                description="Current utilization status of your fleet"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 gap-6">
-              <ChartVisualizer
-                title="Maintenance Overview"
-                data={maintenanceData}
-                xKey="type"
-                yKeys={[
-                  { key: "count", name: "Number of Events", color: "#3498db" },
-                  { key: "cost", name: "Cost ($)", color: "#e74c3c" },
-                ]}
-                description="Maintenance events by type and associated costs"
-              />
-            </div>
-
-            <div className="mt-8">
-              <Tabs defaultValue="reportBuilder">
-                <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 md:w-[400px]">
-                  <TabsTrigger value="reportBuilder">Report Builder</TabsTrigger>
-                  <TabsTrigger value="savedReports">Saved Reports</TabsTrigger>
-                  <TabsTrigger value="templates">Templates</TabsTrigger>
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+              <div className="overflow-x-auto pb-2">
+                <TabsList className="grid grid-cols-4 md:grid-cols-7 w-max md:w-full mb-4">
+                  <TabsTrigger value="dashboards" className="px-2 md:px-3">Dashboards</TabsTrigger>
+                  <TabsTrigger value="attendance" className="px-2 md:px-3">Attendance</TabsTrigger>
+                  <TabsTrigger value="leave" className="px-2 md:px-3">Leave</TabsTrigger>
+                  <TabsTrigger value="attrition" className="px-2 md:px-3">Attrition</TabsTrigger>
+                  <TabsTrigger value="compliance" className="px-2 md:px-3">Compliance</TabsTrigger>
+                  <TabsTrigger value="overtime" className="px-2 md:px-3">Overtime</TabsTrigger>
+                  <TabsTrigger value="builder" className="px-2 md:px-3">Report Builder</TabsTrigger>
                 </TabsList>
-                <TabsContent value="reportBuilder">
-                  <div className="mt-6">
-                    <h2 className="text-2xl font-bold mb-4">Create Custom Report</h2>
-                    <ReportBuilder />
-                  </div>
-                </TabsContent>
-                <TabsContent value="savedReports">
-                  <div className="mt-6">
-                    <h2 className="text-2xl font-bold mb-4">Saved Reports</h2>
-                    <div className="p-8 text-center bg-muted/40 rounded-lg border border-dashed">
-                      <p className="text-muted-foreground">You don't have any saved reports yet.</p>
-                      <p className="text-muted-foreground mt-2">Create a new report to get started.</p>
-                    </div>
-                  </div>
-                </TabsContent>
-                <TabsContent value="templates">
-                  <div className="mt-6">
-                    <h2 className="text-2xl font-bold mb-4">Report Templates</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
-                        <h3 className="font-medium">Fleet Overview</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Complete overview of all fleet metrics
-                        </p>
-                      </div>
-                      <div className="border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
-                        <h3 className="font-medium">Fuel Consumption</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Detailed fuel usage analysis by vehicle
-                        </p>
-                      </div>
-                      <div className="border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
-                        <h3 className="font-medium">Driver Performance</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Compare driver metrics and safety records
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </div>
+              </div>
+
+              <TabsContent value="dashboards" className="mt-2">
+                <EmployeeDashboards subMenu={activeSubMenu.dashboards} />
+              </TabsContent>
+              
+              <TabsContent value="attendance" className="mt-2">
+                <AttendanceReports subMenu={activeSubMenu.attendance} />
+              </TabsContent>
+              
+              <TabsContent value="leave" className="mt-2">
+                <LeaveReports subMenu={activeSubMenu.leave} />
+              </TabsContent>
+              
+              <TabsContent value="attrition" className="mt-2">
+                <AttritionReports subMenu={activeSubMenu.attrition} />
+              </TabsContent>
+              
+              <TabsContent value="compliance" className="mt-2">
+                <ComplianceReports subMenu={activeSubMenu.compliance} />
+              </TabsContent>
+              
+              <TabsContent value="overtime" className="mt-2">
+                <OvertimeReports subMenu={activeSubMenu.overtime} />
+              </TabsContent>
+              
+              <TabsContent value="builder" className="mt-2">
+                <HRReportBuilder subMenu={activeSubMenu.builder} />
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </div>

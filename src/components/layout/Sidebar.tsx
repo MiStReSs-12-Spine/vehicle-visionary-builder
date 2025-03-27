@@ -1,22 +1,25 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   BarChart3,
-  Car,
   FileText,
   Settings,
   LogOut,
   ChevronLeft,
   PanelLeft,
-  Route,
-  Truck,
-  CarFront,
-  Users,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Users,
+  UserCheck,
+  Calendar,
+  Clock,
+  FileBarChart,
+  ClipboardList,
+  UserMinus
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -27,54 +30,80 @@ interface SidebarProps {
 
 const navigation = [
   {
-    title: "Dashboard",
+    title: "HR Dashboard",
     icon: LayoutDashboard,
     href: "/",
     active: true,
   },
   {
-    title: "Reports",
-    icon: FileText,
-    href: "/reports",
-  },
-  {
-    title: "Analytics",
-    icon: BarChart3,
-    href: "/analytics",
-  },
-  {
-    title: "HR",
+    title: "Employee Overview",
     icon: Users,
-    href: "/hr",
+    href: "/?tab=dashboards",
     subItems: [
-      { title: "Dashboards", href: "/hr" },
-      { title: "Attendance", href: "/hr?tab=attendance" },
-      { title: "Leave", href: "/hr?tab=leave" },
-      { title: "Attrition", href: "/hr?tab=attrition" },
-      { title: "Compliance", href: "/hr?tab=compliance" },
-      { title: "Overtime", href: "/hr?tab=overtime" },
-      { title: "Report Builder", href: "/hr?tab=builder" },
+      { title: "Daily Report", href: "/?tab=dashboards&submenu=daily" },
+      { title: "Monthly Summary", href: "/?tab=dashboards&submenu=monthly" },
+      { title: "Department Analysis", href: "/?tab=dashboards&submenu=department" },
     ]
   },
   {
-    title: "Fleet",
-    icon: Car,
-    href: "/fleet",
+    title: "Attendance",
+    icon: UserCheck,
+    href: "/?tab=attendance",
+    subItems: [
+      { title: "Daily Report", href: "/?tab=attendance&submenu=daily" },
+      { title: "Monthly Summary", href: "/?tab=attendance&submenu=monthly" },
+      { title: "Absence Patterns", href: "/?tab=attendance&submenu=absence" },
+    ]
   },
   {
-    title: "Vehicles",
-    icon: CarFront,
-    href: "/vehicles",
+    title: "Leave Management",
+    icon: Calendar,
+    href: "/?tab=leave",
+    subItems: [
+      { title: "Vacation Tracker", href: "/?tab=leave&submenu=vacation" },
+      { title: "Sick Leave Analysis", href: "/?tab=leave&submenu=sick" },
+      { title: "Leave Balance", href: "/?tab=leave&submenu=balance" },
+    ]
   },
   {
-    title: "Routes",
-    icon: Route,
-    href: "/routes",
+    title: "Attrition",
+    icon: UserMinus,
+    href: "/?tab=attrition",
+    subItems: [
+      { title: "Turnover Rates", href: "/?tab=attrition&submenu=turnover" },
+      { title: "Exit Interviews", href: "/?tab=attrition&submenu=exit" },
+      { title: "Retention Strategies", href: "/?tab=attrition&submenu=retention" },
+    ]
   },
   {
-    title: "Logistics",
-    icon: Truck,
-    href: "/logistics",
+    title: "Compliance",
+    icon: ClipboardList,
+    href: "/?tab=compliance",
+    subItems: [
+      { title: "Form 15", href: "/?tab=compliance&submenu=form15" },
+      { title: "Form IV", href: "/?tab=compliance&submenu=form4" },
+      { title: "Regulatory Reports", href: "/?tab=compliance&submenu=regulatory" },
+    ]
+  },
+  {
+    title: "Overtime",
+    icon: Clock,
+    href: "/?tab=overtime",
+    subItems: [
+      { title: "Cost Analysis", href: "/?tab=overtime&submenu=cost" },
+      { title: "Department Breakdown", href: "/?tab=overtime&submenu=department" },
+      { title: "Individual Reports", href: "/?tab=overtime&submenu=individual" },
+    ]
+  },
+  {
+    title: "Report Builder",
+    icon: FileBarChart,
+    href: "/?tab=builder",
+    subItems: [
+      { title: "Custom Reports", href: "/?tab=builder&submenu=custom" },
+      { title: "Saved Templates", href: "/?tab=builder&submenu=templates" },
+      { title: "Scheduled Reports", href: "/?tab=builder&submenu=scheduled" },
+    ]
   },
   {
     title: "Settings",
@@ -84,7 +113,26 @@ const navigation = [
 ];
 
 const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+
+  // Check which tab is active from URL parameters
+  const searchParams = new URLSearchParams(location.search);
+  const activeTab = searchParams.get("tab") || "dashboards";
+
+  // Initialize expanded items based on active tab
+  useEffect(() => {
+    // Find the navigation item that matches the current URL's tab
+    const matchingItem = navigation.find(item => {
+      const itemTab = new URLSearchParams(new URL(item.href, window.location.origin).search).get("tab");
+      return itemTab === activeTab;
+    });
+    
+    if (matchingItem && !expandedItems.includes(matchingItem.title)) {
+      setExpandedItems(prev => [...prev, matchingItem.title]);
+    }
+  }, [activeTab, location]);
 
   const toggleSubMenu = (title: string) => {
     setExpandedItems((current) => 
@@ -92,6 +140,25 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
         ? current.filter(item => item !== title) 
         : [...current, title]
     );
+  };
+
+  // Handle navigation item click
+  const handleNavItemClick = (item: any, e: React.MouseEvent) => {
+    if (item.subItems) {
+      e.preventDefault();
+      toggleSubMenu(item.title);
+    } else {
+      if (window.innerWidth < 1024) {
+        toggleSidebar();
+      }
+    }
+  };
+
+  // Handle submenu item click
+  const handleSubItemClick = () => {
+    if (window.innerWidth < 1024) {
+      toggleSidebar();
+    }
   };
 
   return (
@@ -114,13 +181,13 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
         <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
           <div className="flex items-center gap-2">
             <PanelLeft className="h-6 w-6 text-primary" />
-            <span className="text-lg font-semibold text-sidebar-foreground">Fleet Analytics</span>
+            <span className="text-lg font-semibold text-sidebar-foreground">HR Dashboard</span>
           </div>
           <Button
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className="lg:flex text-sidebar-foreground hover:text-primary hover:bg-sidebar-accent"
+            className="lg:hidden text-sidebar-foreground hover:text-primary hover:bg-sidebar-accent"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -133,10 +200,10 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                 {item.subItems ? (
                   <>
                     <button
-                      onClick={() => toggleSubMenu(item.title)}
+                      onClick={(e) => handleNavItemClick(item, e)}
                       className={cn(
                         "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                        item.active
+                        item.active || location.pathname === item.href || (item.href.includes("tab=") && item.href.includes(activeTab))
                           ? "bg-sidebar-accent text-primary"
                           : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                       )}
@@ -157,7 +224,11 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                           <Link
                             key={subItem.title}
                             to={subItem.href}
-                            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/70"
+                            onClick={handleSubItemClick}
+                            className={cn(
+                              "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/70",
+                              location.search === new URL(subItem.href, window.location.origin).search && "bg-sidebar-accent/60 font-medium"
+                            )}
                           >
                             <span className="h-1 w-1 rounded-full bg-sidebar-foreground/70"></span>
                             {subItem.title}
@@ -169,9 +240,10 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                 ) : (
                   <Link
                     to={item.href}
+                    onClick={(e) => handleNavItemClick(item, e)}
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                      item.active
+                      item.active || location.pathname === item.href
                         ? "bg-sidebar-accent text-primary"
                         : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                     )}
