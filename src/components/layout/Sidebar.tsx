@@ -5,20 +5,18 @@ import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   BarChart3,
+  Car,
   FileText,
   Settings,
   LogOut,
   ChevronLeft,
   PanelLeft,
-  ChevronDown,
-  ChevronRight,
+  Route,
+  Truck,
+  CarFront,
   Users,
-  UserCheck,
-  Calendar,
-  Clock,
-  FileBarChart,
-  ClipboardList,
-  UserMinus
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -29,75 +27,15 @@ interface SidebarProps {
 
 const navigation = [
   {
-    title: "HR Dashboard",
+    title: "Dashboard",
     icon: LayoutDashboard,
     href: "/",
     active: true,
   },
   {
-    title: "Employee Overview",
-    icon: Users,
-    href: "/?tab=dashboards",
-  },
-  {
-    title: "Attendance",
-    icon: UserCheck,
-    href: "/?tab=attendance",
-    subItems: [
-      { title: "Daily Report", href: "/?tab=attendance&submenu=daily" },
-      { title: "Monthly Summary", href: "/?tab=attendance&submenu=monthly" },
-      { title: "Absence Patterns", href: "/?tab=attendance&submenu=absence" },
-    ]
-  },
-  {
-    title: "Leave Management",
-    icon: Calendar,
-    href: "/?tab=leave",
-    subItems: [
-      { title: "Vacation Tracker", href: "/?tab=leave&submenu=vacation" },
-      { title: "Sick Leave Analysis", href: "/?tab=leave&submenu=sick" },
-      { title: "Leave Balance", href: "/?tab=leave&submenu=balance" },
-    ]
-  },
-  {
-    title: "Attrition",
-    icon: UserMinus,
-    href: "/?tab=attrition",
-    subItems: [
-      { title: "Turnover Rates", href: "/?tab=attrition&submenu=turnover" },
-      { title: "Exit Interviews", href: "/?tab=attrition&submenu=exit" },
-      { title: "Retention Strategies", href: "/?tab=attrition&submenu=retention" },
-    ]
-  },
-  {
-    title: "Compliance",
-    icon: ClipboardList,
-    href: "/?tab=compliance",
-    subItems: [
-      { title: "Form 15", href: "/?tab=compliance&submenu=form15" },
-      { title: "Form IV", href: "/?tab=compliance&submenu=form4" },
-      { title: "Regulatory Reports", href: "/?tab=compliance&submenu=regulatory" },
-    ]
-  },
-  {
-    title: "Overtime",
-    icon: Clock,
-    href: "/?tab=overtime",
-    subItems: [
-      { title: "Cost Analysis", href: "/?tab=overtime&submenu=cost" },
-      { title: "Department Breakdown", href: "/?tab=overtime&submenu=department" },
-      { title: "Individual Reports", href: "/?tab=overtime&submenu=individual" },
-    ]
-  },
-  {
-    title: "Report Builder",
-    icon: FileBarChart,
-    href: "/?tab=builder",
-    subItems: [
-      { title: "Custom Reports", href: "/?tab=builder&submenu=custom" },
-      { title: "Saved Templates", href: "/?tab=builder&submenu=templates" },
-      { title: "Scheduled Reports", href: "/?tab=builder&submenu=scheduled" },
-    ]
+    title: "Reports",
+    icon: FileText,
+    href: "/reports",
   },
   {
     title: "Analytics",
@@ -105,9 +43,38 @@ const navigation = [
     href: "/analytics",
   },
   {
-    title: "Reports",
-    icon: FileText,
-    href: "/reports",
+    title: "HR",
+    icon: Users,
+    href: "/hr",
+    subItems: [
+      { title: "Dashboards", href: "/hr" },
+      { title: "Attendance", href: "/hr?tab=attendance" },
+      { title: "Leave", href: "/hr?tab=leave" },
+      { title: "Attrition", href: "/hr?tab=attrition" },
+      { title: "Compliance", href: "/hr?tab=compliance" },
+      { title: "Overtime", href: "/hr?tab=overtime" },
+      { title: "Report Builder", href: "/hr?tab=builder" },
+    ]
+  },
+  {
+    title: "Fleet",
+    icon: Car,
+    href: "/fleet",
+  },
+  {
+    title: "Vehicles",
+    icon: CarFront,
+    href: "/vehicles",
+  },
+  {
+    title: "Routes",
+    icon: Route,
+    href: "/routes",
+  },
+  {
+    title: "Logistics",
+    icon: Truck,
+    href: "/logistics",
   },
   {
     title: "Settings",
@@ -117,7 +84,7 @@ const navigation = [
 ];
 
 const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
-  const [expandedItems, setExpandedItems] = useState<string[]>(["HR Dashboard"]);
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
   const toggleSubMenu = (title: string) => {
     setExpandedItems((current) => 
@@ -147,7 +114,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
         <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
           <div className="flex items-center gap-2">
             <PanelLeft className="h-6 w-6 text-primary" />
-            <span className="text-lg font-semibold text-sidebar-foreground">HR Dashboard</span>
+            <span className="text-lg font-semibold text-sidebar-foreground">Fleet Analytics</span>
           </div>
           <Button
             variant="ghost"
