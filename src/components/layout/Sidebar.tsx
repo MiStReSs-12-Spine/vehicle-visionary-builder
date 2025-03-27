@@ -21,7 +21,6 @@ import {
   ClipboardList,
   UserMinus
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 interface SidebarProps {
@@ -112,9 +111,10 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
   const navigate = useNavigate();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
-  // Get active tab from URL parameters
+  // Get active tab and submenu from URL parameters
   const searchParams = new URLSearchParams(location.search);
   const activeTab = searchParams.get("tab") || "dashboards";
+  const activeSubmenu = searchParams.get("submenu") || "general";
 
   // Initialize expanded items based on active tab
   useEffect(() => {
@@ -130,7 +130,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
     if (matchingItem && !expandedItems.includes(matchingItem.title)) {
       setExpandedItems(prev => [...prev, matchingItem.title]);
     }
-  }, [activeTab, location.pathname, expandedItems]);
+  }, [activeTab, expandedItems]);
 
   // Toggle submenu visibility
   const toggleSubMenu = (title: string) => {
@@ -143,12 +143,25 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
 
   // Handle navigation item click
   const handleNavItemClick = (item: any, e: React.MouseEvent) => {
+    e.preventDefault();
+    
     if (item.subItems) {
-      e.preventDefault();
       toggleSubMenu(item.title);
+      
+      // Also navigate to the main tab page
+      navigate(item.href);
+      
+      // Extract tab from URL
+      const url = new URL(item.href, window.location.origin);
+      const params = new URLSearchParams(url.search);
+      const tab = params.get('tab') || 'dashboards';
+      
+      toast.success(`${item.title} section loaded`);
     } else {
       // If no subitems, navigate to the item's href
       navigate(item.href);
+      toast.success(`${item.title} loaded`);
+      
       if (window.innerWidth < 1024) {
         toggleSidebar();
       }
@@ -156,14 +169,26 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
   };
 
   // Handle submenu item click
-  const handleSubItemClick = (subItem: any, e: React.MouseEvent) => {
+  const handleSubItemClick = (parentTitle: string, subItem: any, e: React.MouseEvent) => {
     e.preventDefault();
     navigate(subItem.href);
-    toast.success(`Navigated to ${subItem.title}`);
+    toast.success(`${parentTitle} - ${subItem.title} loaded`);
     
     if (window.innerWidth < 1024) {
       toggleSidebar();
     }
+  };
+
+  // Check if a navigation item is active
+  const isNavItemActive = (item: any) => {
+    const itemParams = new URLSearchParams(new URL(item.href, window.location.origin).search);
+    const itemTab = itemParams.get("tab");
+    return itemTab === activeTab;
+  };
+
+  // Check if a submenu item is active
+  const isSubItemActive = (subItem: any) => {
+    return location.search === new URL(subItem.href, window.location.origin).search;
   };
 
   return (
@@ -208,7 +233,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                       onClick={(e) => handleNavItemClick(item, e)}
                       className={cn(
                         "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                        location.search && item.href && location.search.includes(item.href.split("?")[1])
+                        isNavItemActive(item)
                           ? "bg-sidebar-accent text-primary"
                           : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                       )}
@@ -229,11 +254,11 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                           <a
                             key={subItem.title}
                             href={subItem.href}
-                            onClick={(e) => handleSubItemClick(subItem, e)}
+                            onClick={(e) => handleSubItemClick(item.title, subItem, e)}
                             className={cn(
                               "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/70",
-                              location.search === new URL(subItem.href, window.location.origin).search 
-                                ? "bg-sidebar-accent/60 font-medium" 
+                              isSubItemActive(subItem) 
+                                ? "bg-sidebar-accent/60 font-medium text-primary" 
                                 : ""
                             )}
                           >

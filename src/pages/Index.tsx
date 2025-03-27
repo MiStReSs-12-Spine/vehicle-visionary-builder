@@ -60,11 +60,30 @@ const Index = () => {
     }
   };
   
-  // Display toast notification when tab changes
+  // Get subtitle based on submenu
+  const getPageSubtitle = () => {
+    if (submenuFromUrl === "general") {
+      return "Monitor employee metrics and create custom HR reports";
+    }
+    
+    // Convert camelCase or dash-case to Title Case
+    const formatSubmenu = (str: string) => {
+      return str
+        .replace(/-/g, ' ')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, (str) => str.toUpperCase())
+        .trim();
+    };
+    
+    return `${formatSubmenu(submenuFromUrl)} - ${getPageTitle()}`;
+  };
+  
+  // Display toast notification when tab/submenu changes
   useEffect(() => {
     const tabTitle = getPageTitle();
-    toast.success(`${tabTitle} loaded`);
-  }, [tabFromUrl]);
+    const subTitle = submenuFromUrl !== "general" ? ` - ${submenuFromUrl.replace(/-/g, ' ')}` : '';
+    toast.success(`${tabTitle}${subTitle} loaded`);
+  }, [tabFromUrl, submenuFromUrl]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -77,7 +96,7 @@ const Index = () => {
             <div>
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{getPageTitle()}</h1>
               <p className="text-muted-foreground mt-2">
-                Monitor employee metrics and create custom HR reports
+                {getPageSubtitle()}
               </p>
             </div>
 
