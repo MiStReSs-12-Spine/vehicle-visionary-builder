@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Save, Download, FileText, Trash2, Calendar, Filter, MapPin, Award, Briefcase, Users } from "lucide-react";
+import { Plus, Save, Download, FileText, Trash2, Calendar, Filter } from "lucide-react";
 import DataGrid from "@/components/reports/DataGrid";
 import { employeeData, departmentData } from "@/utils/hrData";
 
@@ -28,20 +27,6 @@ const HRReportBuilder: React.FC<HRReportBuilderProps> = ({ subMenu }) => {
     { id: 2, name: "Department Headcount", type: "headcount", created: "2023-04-22", lastRun: "2023-05-14" },
     { id: 3, name: "Leave Balance Report", type: "leave", created: "2023-03-15", lastRun: "2023-05-12" },
   ]);
-  
-  // New filter states
-  const [payrollMonth, setPayrollMonth] = useState("");
-  const [location, setLocation] = useState("");
-  const [grade, setGrade] = useState("");
-  const [designation, setDesignation] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("");
-
-  // Sample data for filters
-  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const locations = ["Mumbai", "Bangalore", "Delhi", "Chennai", "Hyderabad", "Pune", "Kolkata"];
-  const grades = ["A", "B", "C", "D", "E"];
-  const designations = ["Manager", "Engineer", "Analyst", "Coordinator", "Supervisor", "Director", "VP"];
-  const departments = ["Engineering", "Marketing", "HR", "Finance", "Operations", "Sales", "Customer Support", "IT", "Product"];
 
   // Available fields for report building
   const availableFields = [
@@ -57,9 +42,6 @@ const HRReportBuilder: React.FC<HRReportBuilderProps> = ({ subMenu }) => {
     { id: "leaveBalance", label: "Leave Balance" },
     { id: "performance", label: "Performance Rating" },
     { id: "lastPromotion", label: "Last Promotion Date" },
-    { id: "grade", label: "Grade" },
-    { id: "designation", label: "Designation" },
-    { id: "payrollMonth", label: "Payroll Month" },
   ];
 
   // Available filters
@@ -69,9 +51,6 @@ const HRReportBuilder: React.FC<HRReportBuilderProps> = ({ subMenu }) => {
     { id: "joinDate", label: "Join Date" },
     { id: "location", label: "Location" },
     { id: "status", label: "Status" },
-    { id: "grade", label: "Grade" },
-    { id: "designation", label: "Designation" },
-    { id: "payrollMonth", label: "Payroll Month" },
   ];
 
   // Toggle field selection
@@ -92,7 +71,7 @@ const HRReportBuilder: React.FC<HRReportBuilderProps> = ({ subMenu }) => {
     );
   };
 
-  // Generate preview data based on selected fields and filters
+  // Generate preview data based on selected fields
   const previewData = employeeData.slice(0, 5).map(emp => {
     const filteredEmp: Record<string, any> = {};
     selectedFields.forEach(field => {
@@ -251,106 +230,6 @@ const HRReportBuilder: React.FC<HRReportBuilderProps> = ({ subMenu }) => {
                     </Button>
                   </div>
                 )}
-              </div>
-            </div>
-            
-            <div className="mt-6">
-              <h3 className="text-sm font-medium mb-2">Report Filters</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                <div>
-                  <div className="flex items-center gap-1 mb-1 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    <span>Payroll Month</span>
-                  </div>
-                  <Select value={payrollMonth} onValueChange={setPayrollMonth}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select month" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {months.map((month) => (
-                        <SelectItem key={month} value={month.toLowerCase()}>
-                          {month}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <div className="flex items-center gap-1 mb-1 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4" />
-                    <span>Location</span>
-                  </div>
-                  <Select value={location} onValueChange={setLocation}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select location" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {locations.map((loc) => (
-                        <SelectItem key={loc} value={loc.toLowerCase()}>
-                          {loc}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <div className="flex items-center gap-1 mb-1 text-sm text-muted-foreground">
-                    <Award className="h-4 w-4" />
-                    <span>Grade</span>
-                  </div>
-                  <Select value={grade} onValueChange={setGrade}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select grade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {grades.map((g) => (
-                        <SelectItem key={g} value={g.toLowerCase()}>
-                          {g}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <div className="flex items-center gap-1 mb-1 text-sm text-muted-foreground">
-                    <Briefcase className="h-4 w-4" />
-                    <span>Designation</span>
-                  </div>
-                  <Select value={designation} onValueChange={setDesignation}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select designation" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {designations.map((des) => (
-                        <SelectItem key={des} value={des.toLowerCase()}>
-                          {des}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <div className="flex items-center gap-1 mb-1 text-sm text-muted-foreground">
-                    <Users className="h-4 w-4" />
-                    <span>Department</span>
-                  </div>
-                  <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select department" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {departments.map((dept) => (
-                        <SelectItem key={dept} value={dept.toLowerCase()}>
-                          {dept}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
             </div>
             

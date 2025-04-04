@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -38,17 +37,13 @@ const OvertimeReports: React.FC<OvertimeReportsProps> = ({ subMenu }) => {
       ...record,
       employeeName: employee ? employee.name : "Unknown",
       department: employee ? employee.department : "Unknown",
-      // Adding calculated pay with overtime rate (using a standard rate of $25 per hour)
-      rate: 25,
-      pay: record.hours * 25,
     };
   });
 
-  // Calculate overtime cost by month from overtime hours
-  // Using a standard overtime rate of $25 per hour
+  // Calculate overtime cost by month
   const overtimeCostData = monthlySummaryData.map(data => ({
     month: data.month,
-    overtimeCost: data.overtimeHours * 25, // Calculate cost based on hours
+    overtimeCost: data.overtimeCost,
   }));
 
   // Department-wise overtime

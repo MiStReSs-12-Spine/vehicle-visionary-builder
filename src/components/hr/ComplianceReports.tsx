@@ -1,10 +1,9 @@
-
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Download, FileText, Info, Calendar, MapPin, Award, Briefcase, Users } from "lucide-react";
+import { Download, FileText, Info } from "lucide-react";
 import DataGrid from "@/components/reports/DataGrid";
 import { employeeData } from "@/utils/hrData";
 import {
@@ -24,12 +23,6 @@ const ComplianceReports: React.FC<ComplianceReportsProps> = ({ subMenu }) => {
   const [year, setYear] = useState("2023");
   const [location, setLocation] = useState("all");
   const [department, setDepartment] = useState("all");
-  const [grade, setGrade] = useState("all");
-  const [designation, setDesignation] = useState("all");
-
-  // Sample data for filters
-  const grades = ["A", "B", "C", "D", "E"];
-  const designations = ["Manager", "Engineer", "Analyst", "Coordinator", "Supervisor", "Director", "VP"];
 
   // Generate sample compliance data
   const generateComplianceData = () => {
@@ -151,13 +144,11 @@ const ComplianceReports: React.FC<ComplianceReportsProps> = ({ subMenu }) => {
     }
   };
 
-  // Filter data based on all filter criteria
+  // Filter data based on location and department selections
   const filteredData = complianceData.filter(item => {
-    const locationMatch = location === "all" || item.location.toLowerCase() === location;
+    const locationMatch = location === "all" || item.location === location;
     const departmentMatch = department === "all" || item.department === department;
-    const gradeMatch = grade === "all" || item.grade.toLowerCase() === grade;
-    const designationMatch = designation === "all" || item.designation.toLowerCase() === designation;
-    return locationMatch && departmentMatch && gradeMatch && designationMatch;
+    return locationMatch && departmentMatch;
   });
 
   // Get title based on report type
@@ -201,28 +192,25 @@ const ComplianceReports: React.FC<ComplianceReportsProps> = ({ subMenu }) => {
             </SelectContent>
           </Select>
 
-          <div className="flex items-center gap-1">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <Select value={month} onValueChange={setMonth}>
-              <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="Month" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="january">January</SelectItem>
-                <SelectItem value="february">February</SelectItem>
-                <SelectItem value="march">March</SelectItem>
-                <SelectItem value="april">April</SelectItem>
-                <SelectItem value="may">May</SelectItem>
-                <SelectItem value="june">June</SelectItem>
-                <SelectItem value="july">July</SelectItem>
-                <SelectItem value="august">August</SelectItem>
-                <SelectItem value="september">September</SelectItem>
-                <SelectItem value="october">October</SelectItem>
-                <SelectItem value="november">November</SelectItem>
-                <SelectItem value="december">December</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={month} onValueChange={setMonth}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Month" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="january">January</SelectItem>
+              <SelectItem value="february">February</SelectItem>
+              <SelectItem value="march">March</SelectItem>
+              <SelectItem value="april">April</SelectItem>
+              <SelectItem value="may">May</SelectItem>
+              <SelectItem value="june">June</SelectItem>
+              <SelectItem value="july">July</SelectItem>
+              <SelectItem value="august">August</SelectItem>
+              <SelectItem value="september">September</SelectItem>
+              <SelectItem value="october">October</SelectItem>
+              <SelectItem value="november">November</SelectItem>
+              <SelectItem value="december">December</SelectItem>
+            </SelectContent>
+          </Select>
 
           <Select value={year} onValueChange={setYear}>
             <SelectTrigger className="w-[100px]">
@@ -235,42 +223,36 @@ const ComplianceReports: React.FC<ComplianceReportsProps> = ({ subMenu }) => {
             </SelectContent>
           </Select>
 
-          <div className="flex items-center gap-1">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-            <Select value={location} onValueChange={setLocation}>
-              <SelectTrigger className="w-[130px]">
-                <SelectValue placeholder="Location" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Locations</SelectItem>
-                <SelectItem value="mumbai">Mumbai</SelectItem>
-                <SelectItem value="bangalore">Bangalore</SelectItem>
-                <SelectItem value="delhi">Delhi</SelectItem>
-                <SelectItem value="chennai">Chennai</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={location} onValueChange={setLocation}>
+            <SelectTrigger className="w-[130px]">
+              <SelectValue placeholder="Location" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Locations</SelectItem>
+              <SelectItem value="Mumbai">Mumbai</SelectItem>
+              <SelectItem value="Bangalore">Bangalore</SelectItem>
+              <SelectItem value="Delhi">Delhi</SelectItem>
+              <SelectItem value="Chennai">Chennai</SelectItem>
+            </SelectContent>
+          </Select>
 
-          <div className="flex items-center gap-1">
-            <Users className="h-4 w-4 text-muted-foreground" />
-            <Select value={department} onValueChange={setDepartment}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Departments</SelectItem>
-                <SelectItem value="Engineering">Engineering</SelectItem>
-                <SelectItem value="Marketing">Marketing</SelectItem>
-                <SelectItem value="HR">HR</SelectItem>
-                <SelectItem value="Finance">Finance</SelectItem>
-                <SelectItem value="Operations">Operations</SelectItem>
-                <SelectItem value="Sales">Sales</SelectItem>
-                <SelectItem value="Customer Support">Customer Support</SelectItem>
-                <SelectItem value="IT">IT</SelectItem>
-                <SelectItem value="Product">Product</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={department} onValueChange={setDepartment}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Department" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Departments</SelectItem>
+              <SelectItem value="Engineering">Engineering</SelectItem>
+              <SelectItem value="Marketing">Marketing</SelectItem>
+              <SelectItem value="HR">HR</SelectItem>
+              <SelectItem value="Finance">Finance</SelectItem>
+              <SelectItem value="Operations">Operations</SelectItem>
+              <SelectItem value="Sales">Sales</SelectItem>
+              <SelectItem value="Customer Support">Customer Support</SelectItem>
+              <SelectItem value="IT">IT</SelectItem>
+              <SelectItem value="Product">Product</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex gap-2">
@@ -310,46 +292,10 @@ const ComplianceReports: React.FC<ComplianceReportsProps> = ({ subMenu }) => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="max-w-sm">
-                <p>This report provides compliance data required by labor laws. It can be filtered by month, year, location, department, grade, and designation.</p>
+                <p>This report provides compliance data required by labor laws. It can be filtered by month, year, location, and department.</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2 items-center">
-        <div className="flex items-center gap-1">
-          <Award className="h-4 w-4 text-muted-foreground" />
-          <Select value={grade} onValueChange={setGrade}>
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Grade" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Grades</SelectItem>
-              {grades.map((g) => (
-                <SelectItem key={g} value={g.toLowerCase()}>
-                  {g}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <Briefcase className="h-4 w-4 text-muted-foreground" />
-          <Select value={designation} onValueChange={setDesignation}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Designation" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Designations</SelectItem>
-              {designations.map((des) => (
-                <SelectItem key={des} value={des.toLowerCase()}>
-                  {des}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
@@ -361,7 +307,7 @@ const ComplianceReports: React.FC<ComplianceReportsProps> = ({ subMenu }) => {
           </div>
           <p className="text-sm text-muted-foreground">
             Period: {month.charAt(0).toUpperCase() + month.slice(1)} {year} | 
-            Location: {location === "all" ? "All Locations" : location.charAt(0).toUpperCase() + location.slice(1)} | 
+            Location: {location === "all" ? "All Locations" : location} | 
             Department: {department === "all" ? "All Departments" : department}
           </p>
         </div>
